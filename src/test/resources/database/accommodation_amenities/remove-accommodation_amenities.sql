@@ -1,0 +1,1 @@
+delete from accommodation_amenities where accommodation_id between 1 and 2
