@@ -20,5 +20,6 @@ public interface BookingMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     void updateBooking(@MappingTarget Booking booking, BookingRequestDto requestDto);
 }

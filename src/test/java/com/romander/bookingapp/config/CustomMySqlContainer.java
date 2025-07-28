@@ -1,6 +1,5 @@
 package com.romander.bookingapp.config;
 
-import org.springframework.context.annotation.Configuration;
 import org.testcontainers.containers.MySQLContainer;
 
 public class CustomMySqlContainer extends MySQLContainer<CustomMySqlContainer> {

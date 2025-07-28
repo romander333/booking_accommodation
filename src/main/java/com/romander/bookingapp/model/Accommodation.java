@@ -7,9 +7,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails;
-
-import java.lang.annotation.Retention;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

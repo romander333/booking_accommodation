@@ -15,12 +15,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AccommodationServiceImpl implements AccommodationService {
+    private final NotificationService notificationService;
     private final AccommodationRepository accommodationRepository;
     private final AccommodationMapper accommodationMapper;
 
     public AccommodationResponseDto createAccommodation(AccommodationRequestDto accommodationRequestDto) {
         Accommodation accommodation = accommodationMapper.toModel(accommodationRequestDto);
         accommodation = accommodationRepository.save(accommodation);
+        notificationService.sendMessage(String.format(
+                "🏠 New housing has been created.!\nAccommodation ID: %d\nType: %s\nLocation: %s",
+                accommodation.getId(),
+                accommodation.getType(),
+                accommodation.getLocation()
+        ));
         return accommodationMapper.toDto(accommodation);
     }
 
@@ -41,8 +48,15 @@ public class AccommodationServiceImpl implements AccommodationService {
     public AccommodationResponseDto updateAccommodation(Long id, AccommodationRequestDto requestDto) {
         Accommodation accommodation = accommodationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Accommodation not found by id: " + id));
+        Integer oldAvailability  = accommodation.getAvailability();
         accommodationMapper.updateAccommodation(accommodation, requestDto);
-
+        if (requestDto.getAvailability() != null && oldAvailability  < requestDto.getAvailability()) {
+            notificationService.sendMessage(String.format(
+                    "The housing is vacated!\nAccommodation ID: %d\nNew accessibility: %d",
+                    accommodation.getId(),
+                    accommodation.getAvailability()
+            ));
+        }
         return accommodationMapper.toDto(accommodation);
     }
 

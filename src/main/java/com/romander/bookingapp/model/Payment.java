@@ -20,12 +20,15 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
+    @Transient
     private String sessionUrl;
+    @Column(nullable = false)
     private String sessionId;
+    @Column(nullable = false)
     private BigDecimal amount;
 
 
     public enum Status {
-        PENDING, PAID
+        PENDING, PAID, CANCELLED
     }
 }

@@ -10,7 +10,6 @@ import com.romander.bookingapp.model.Booking;
 import com.romander.bookingapp.model.User;
 import com.romander.bookingapp.repository.AccommodationRepository;
 import com.romander.bookingapp.repository.BookingRepository;
-import com.romander.bookingapp.repository.UserRepository;
 import com.romander.bookingapp.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,9 +17,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
+    private final NotificationService notificationService;
     private final AuthenticationService authenticationService;
     private final AccommodationRepository accommodationRepository;
     private final BookingRepository bookingRepository;
@@ -29,15 +31,16 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
         User currentUser = getCurrentUser();
-        Accommodation accommodation = accommodationRepository.findById(bookingRequestDto.getAccommodationId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Accommodation not found by id: " + bookingRequestDto.getAccommodationId()));
-        Booking booking = bookingMapper.toModel(bookingRequestDto);
-        booking.setAccommodation(accommodation);
-        booking.setStatus(Booking.Status.PENDING);
-        booking.setUser(currentUser);
-        Booking save = bookingRepository.save(booking);
-        return bookingMapper.toDto(save);
+        Accommodation accommodation = validateAccommodationExists(bookingRequestDto);
+        checkAccommodationAvailability(bookingRequestDto, accommodation);
+        Booking savedBooking = buildBooking(bookingRequestDto, accommodation, currentUser);
+        sendNewBookingNotification(
+                bookingRequestDto,
+                accommodation,
+                currentUser,
+                savedBooking);
+
+        return bookingMapper.toDto(savedBooking);
     }
 
     @Override
@@ -58,18 +61,15 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto getBookingById(Long id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Can't found booking by id: " + id));
+        Booking booking = getBooking(id);
         return bookingMapper.toDto(booking);
     }
 
     @Override
     @Transactional
     public BookingResponseDto updateBooking(Long id, BookingRequestDto bookingRequestDto) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Can't found booking by id: " + id));
-        Accommodation accommodation = accommodationRepository.findById(bookingRequestDto.getAccommodationId())
-                        .orElseThrow(() -> new EntityNotFoundException("Can't found accommodation by id: " + id));
+        Booking booking = getBooking(id);
+        Accommodation accommodation = validateAccommodationExists(bookingRequestDto);
         booking.setAccommodation(accommodation);
         bookingMapper.updateBooking(booking, bookingRequestDto);
 
@@ -78,16 +78,26 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void deleteBooking(Long id) {
-        bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Can't found booking by id: " + id));
-        bookingRepository.deleteById(id);
+        Booking booking = getBooking(id);
+        if (booking.getStatus() == Booking.Status.CANCELED) {
+            throw new IllegalStateException("This accommodation by booking id: "
+                    + id
+                    + " has already been canceled");
+        }
+        booking.setStatus(Booking.Status.CANCELED);
+        bookingRepository.save(booking);
+        notificationService.sendMessage(String.format(
+                "⚠️ Booking ID %d was cancelled/deleted by user %s",
+                booking.getId(),
+                getCurrentUser().getEmail()
+        ));
     }
 
     @Override
     @Transactional
     public BookingResponseDto updateBookingStatus(Long booking_id, Long user_id, BookingUpdateStatusRequestDto requestDto) {
         Booking booking = bookingRepository.findBookingByUser_IdAndId(user_id, booking_id)
-                        .orElseThrow(() -> new EntityNotFoundException("Can't found booking by id: " + booking_id + "or user id: " + user_id));
+                        .orElseThrow(() -> new EntityNotFoundException("Can't found booking by id: " + booking_id + " or user id: " + user_id));
         booking.setStatus(requestDto.getStatus());
         Booking saveBooking = bookingRepository.save(booking);
 
@@ -98,4 +108,62 @@ public class BookingServiceImpl implements BookingService {
         return authenticationService.getCurrentUser();
     }
 
+    private void checkAccommodationAvailability(BookingRequestDto requestDto, Accommodation accommodation) {
+        if (accommodation.getAvailability() <= bookingRepository
+                .findOverlappingBookings(
+                        accommodation.getId(),
+                        requestDto.getCheckInDate(),
+                        requestDto.getCheckOutDate()).size()) {
+            throw new EntityNotFoundException("This accommodation by id: "
+                    + accommodation.getId()
+                    + " has already not available.");
+        }
+    }
+
+    private void sendNewBookingNotification(
+            BookingRequestDto requestDto,
+            Accommodation accommodation,
+            User currentUser,
+            Booking savedBooking) {
+        notificationService.sendMessage(String.format("""
+                NEW BOOKING CREATED
+                            🧑 User: %s
+                            🏠 Accommodation: %s
+                            📅 From: %s
+                            📅 To: %s
+                            💼 Booking ID: %s
+                            Status: PENDING
+                """,
+                currentUser.getEmail(),
+                accommodation.getId(),
+                savedBooking.getCheckInDate(),
+                savedBooking.getCheckOutDate(),
+                savedBooking.getId()
+        ));
+    }
+
+    private Booking buildBooking(
+            BookingRequestDto bookingRequestDto,
+            Accommodation accommodation,
+            User currentUser) {
+        Booking booking = bookingMapper.toModel(bookingRequestDto);
+        booking.setAccommodation(accommodation);
+        booking.setStatus(Booking.Status.PENDING);
+        booking.setUser(currentUser);
+        booking.setCreatedAt(LocalDateTime.now());
+        return bookingRepository.save(booking);
+    }
+
+    private Accommodation validateAccommodationExists(BookingRequestDto bookingRequestDto) {
+        return accommodationRepository
+                .findById(bookingRequestDto.getAccommodationId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Accommodation not found by id: "
+                                + bookingRequestDto.getAccommodationId()));
+    }
+
+    private Booking getBooking(Long id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Can't found booking by id: " + id));
+    }
 }

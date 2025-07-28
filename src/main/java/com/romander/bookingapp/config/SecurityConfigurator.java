@@ -42,7 +42,7 @@ public class SecurityConfigurator {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/auth/**")
+                                .requestMatchers("/auth/**", "payments/webhook")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
