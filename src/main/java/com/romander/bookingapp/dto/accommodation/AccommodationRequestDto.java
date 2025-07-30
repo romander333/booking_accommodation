@@ -1,13 +1,15 @@
 package com.romander.bookingapp.dto.accommodation;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.romander.bookingapp.model.Accommodation;
 import com.romander.bookingapp.model.Address;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -28,5 +30,4 @@ public class AccommodationRequestDto {
     @NotNull
     @Min(1)
     private Integer availability;
-
 }

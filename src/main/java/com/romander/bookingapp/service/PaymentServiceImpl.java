@@ -10,13 +10,11 @@ import com.romander.bookingapp.repository.PaymentRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +71,6 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);
     }
 
-
     public void notifyPaymentSuccess() {
         notificationService.sendMessage("A customer has successfully completed a payment.");
     }
@@ -82,7 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
         notificationService.sendMessage(String.format("""
             Payment was cancelled
             Time: %s
-            """, LocalDateTime.now()));
+                """, LocalDateTime.now()));
     }
 
     private Booking getBooking(Long id) {
@@ -91,8 +88,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private Long calculateTotalPrice(Booking booking) {
-        long totalDays = ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
-        long price = booking.getAccommodation().getDailyRate().multiply(BigDecimal.valueOf(100)).longValue();
+        long totalDays = ChronoUnit.DAYS.between(booking.getCheckInDate(),
+                booking.getCheckOutDate());
+        long price = booking
+                .getAccommodation()
+                .getDailyRate()
+                .multiply(BigDecimal.valueOf(100)).longValue();
         return price * totalDays;
     }
 

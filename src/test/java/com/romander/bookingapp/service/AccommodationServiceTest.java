@@ -1,11 +1,24 @@
 package com.romander.bookingapp.service;
 
+import static com.romander.bookingapp.util.AccommodationDataTest.getAccommodation;
+import static com.romander.bookingapp.util.AccommodationDataTest.getAccommodationRequestDto;
+import static com.romander.bookingapp.util.AccommodationDataTest.getAccommodationResponseDto;
+import static com.romander.bookingapp.util.AccommodationDataTest.getAnotherAccommodation;
+import static com.romander.bookingapp.util.AccommodationDataTest.getAnotherAccommodationResponseDto;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.romander.bookingapp.dto.accommodation.AccommodationRequestDto;
 import com.romander.bookingapp.dto.accommodation.AccommodationResponseDto;
 import com.romander.bookingapp.exception.EntityNotFoundException;
 import com.romander.bookingapp.mapper.AccommodationMapper;
 import com.romander.bookingapp.model.Accommodation;
 import com.romander.bookingapp.repository.AccommodationRepository;
+import java.util.Arrays;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,23 +29,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import java.util.Arrays;
-import java.util.Optional;
-import static com.romander.bookingapp.util.AccommodationDataTest.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AccommodationServiceTest {
     @Mock
     private AccommodationRepository accommodationRepository;
 
+    @Mock
+    private NotificationService notificationService;
+
     @InjectMocks
     private AccommodationServiceImpl accommodationService;
 
     @Mock
     private AccommodationMapper accommodationMapper;
-
 
     @Test
     @DisplayName("Create Accommodation when valid request provided")
@@ -59,7 +69,8 @@ public class AccommodationServiceTest {
         AccommodationResponseDto expected2 = getAnotherAccommodationResponseDto();
         Accommodation accommodation2 = getAnotherAccommodation();
 
-        Page<Accommodation> responseDtoPage = new PageImpl<>(Arrays.asList(accommodation, accommodation2));
+        Page<Accommodation> responseDtoPage =
+                new PageImpl<>(Arrays.asList(accommodation, accommodation2));
         Pageable pageable = PageRequest.of(0, 10);
         when(accommodationRepository.findAllWithAmenities(pageable)).thenReturn(responseDtoPage);
         when(accommodationMapper.toDto(accommodation)).thenReturn(expected1);
@@ -90,10 +101,10 @@ public class AccommodationServiceTest {
     @Test
     @DisplayName("Get Accommodation when invalid id provided and should throw exception")
     void getAccommodationById_WithInvalidId_ShouldThrownEntityNotFoundException() {
-       Long id = -10L;
-       Exception exception = assertThrows(EntityNotFoundException.class, () -> accommodationService.getAccommodationById(id));
-
-       assertEquals("Accommodation not found by id: " + id, exception.getMessage());
+        Long id = -10L;
+        Exception exception = assertThrows(EntityNotFoundException.class,
+                () -> accommodationService.getAccommodationById(id));
+        assertEquals("Accommodation not found by id: " + id, exception.getMessage());
     }
 
     @Test

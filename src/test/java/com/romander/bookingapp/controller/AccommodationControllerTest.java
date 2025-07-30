@@ -1,14 +1,19 @@
 package com.romander.bookingapp.controller;
 
 import static com.romander.bookingapp.model.Accommodation.Type.CONDO;
-import static com.romander.bookingapp.util.AccommodationDataTest.*;
+import static com.romander.bookingapp.util.AccommodationDataTest.getAccommodationRequestDto;
+import static com.romander.bookingapp.util.AccommodationDataTest.getAccommodationResponseDto;
+import static com.romander.bookingapp.util.AccommodationDataTest.getAnotherAccommodationResponseDto;
 import static com.romander.bookingapp.util.AddressDataTest.getAddress;
 import static com.romander.bookingapp.util.AddressDataTest.getAddressDto;
 import static com.romander.bookingapp.util.AmenitiesDataTest.getAmenities;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,34 +21,49 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.romander.bookingapp.dto.accommodation.AccommodationRequestDto;
 import com.romander.bookingapp.dto.accommodation.AccommodationResponseDto;
 import com.romander.bookingapp.dto.accommodation.AddressDto;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import javax.sql.DataSource;
+
+import com.romander.bookingapp.service.NotificationService;
+import com.romander.bookingapp.service.PaymentService;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.shaded.org.apache.commons.lang3.builder.EqualsBuilder;
-import javax.sql.DataSource;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AccommodationControllerTest {
     private static MockMvc mockMvc;
+
+    @Mock
+    private NotificationService notificationService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeAll
-    static void beforeAll(@Autowired WebApplicationContext webApplicationContext) {
+    void beforeAll(@Autowired WebApplicationContext webApplicationContext) {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -80,7 +100,7 @@ public class AccommodationControllerTest {
                     connection,
                     new ClassPathResource(
                             "database/accommodation_amenities/remove-accommodation_amenities.sql")
-                    );
+            );
             ScriptUtils.executeSqlScript(
                     connection,
                     new ClassPathResource("database/accommodation/remove-accommodation.sql")

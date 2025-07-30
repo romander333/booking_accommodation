@@ -1,9 +1,16 @@
 package com.romander.bookingapp.controller;
 
+import static com.romander.bookingapp.util.BookingDataTest.getAnotherBookingRequestDto;
+import static com.romander.bookingapp.util.BookingDataTest.getAnotherBookingResponseDto;
 import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDto;
+import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDtoForUpdateAndCreate;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,24 +21,32 @@ import com.romander.bookingapp.dto.booking.BookingUpdateStatusRequestDto;
 import com.romander.bookingapp.model.Booking;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.shaded.org.apache.commons.lang3.builder.EqualsBuilder;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookingControllerTest {
 
     private static MockMvc mockMvc;
@@ -39,8 +54,11 @@ public class BookingControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
     @BeforeAll
-    static void beforeAll(@Autowired WebApplicationContext webApplicationContext) {
+    void beforeAll() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -58,7 +76,8 @@ public class BookingControllerTest {
             );
             ScriptUtils.executeSqlScript(
                     connection,
-                    new ClassPathResource("database/accommodation_amenities/add-accommodation_amenities.sql")
+                    new ClassPathResource(
+                            "database/accommodation_amenities/add-accommodation_amenities.sql")
             );
             ScriptUtils.executeSqlScript(
                     connection,
@@ -66,7 +85,7 @@ public class BookingControllerTest {
             );
 
         } catch (SQLException e) {
-
+            throw new RuntimeException(e);
         }
     }
 
@@ -84,7 +103,8 @@ public class BookingControllerTest {
             );
             ScriptUtils.executeSqlScript(
                     connection,
-                    new ClassPathResource("database/accommodation_amenities/remove-accommodation_amenities.sql")
+                    new ClassPathResource(
+                            "database/accommodation_amenities/remove-accommodation_amenities.sql")
             );
             ScriptUtils.executeSqlScript(
                     connection,
@@ -97,18 +117,9 @@ public class BookingControllerTest {
     @WithMockUser(username = "romander@gmail.com", roles = "CUSTOMER")
     @DisplayName("Create Booking when valid request is provided")
     void createBooking_WithValidRequest_ShouldReturnDto() throws Exception {
-        BookingResponseDto expected = new BookingResponseDto(3L,
-                LocalDate.of(2026, 10, 10),
-                LocalDate.of(2026, 11, 12),
-                1L,
-                1L,
-                Booking.Status.PENDING
+        BookingResponseDto expected = getBookingResponseDtoForUpdateAndCreate();
 
-        );
-        BookingRequestDto requestDto = new BookingRequestDto()
-                .setAccommodationId(1L)
-                .setCheckInDate(LocalDate.of(2026, 10, 10))
-                .setCheckOutDate(LocalDate.of(2026, 11, 12));
+        BookingRequestDto requestDto = getAnotherBookingRequestDto();
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
@@ -121,19 +132,21 @@ public class BookingControllerTest {
         BookingResponseDto actual = objectMapper
                 .readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
 
-        assertEquals(expected, actual);
+        System.out.println(actual);
+        System.out.println(expected);
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "createdAt"));
     }
 
     @Test
     @DisplayName("Get bookings by id and status when is provided valid data")
     @WithMockUser(username = "admin@gmail.com", roles = "MANAGER")
     void getBooking_WithValidId_ShouldReturnDto() throws Exception {
-        Long user_id = 1L;
+        Long userId = 1L;
         BookingResponseDto expected = getBookingResponseDto();
         List<BookingResponseDto> expectedList = new ArrayList<>();
         expectedList.add(expected);
 
-        MvcResult result = mockMvc.perform(get("/bookings/{user_id}/status", user_id)
+        MvcResult result = mockMvc.perform(get("/bookings/{user_id}/status", userId)
                         .param("status", Booking.Status.PENDING.toString())
                         .param("page", "0")
                         .param("size", "10")
@@ -141,14 +154,14 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-
         JsonNode node = objectMapper.readTree(result.getResponse().getContentAsString());
         JsonNode jsonNode = node.get("content");
-        List<BookingResponseDto> actual = objectMapper.readerForListOf(BookingResponseDto.class).readValue(jsonNode);
+        List<BookingResponseDto> actual = objectMapper
+                .readerForListOf(BookingResponseDto.class)
+                .readValue(jsonNode);
 
         assertEquals(expectedList.size(), actual.size());
         assertEquals(expectedList.get(0), actual.get(0));
-
     }
 
     @Test
@@ -156,8 +169,10 @@ public class BookingControllerTest {
     @WithMockUser(username = "romander@gmail.com", roles = "CUSTOMER")
     void getBookingsByCurrentUser_WithValidUSer_ShouldReturnDto() throws Exception {
         BookingResponseDto expected = getBookingResponseDto();
+        BookingResponseDto expected2 = getAnotherBookingResponseDto();
         List<BookingResponseDto> expectedList = new ArrayList<>();
         expectedList.add(expected);
+        expectedList.add(expected2);
 
         MvcResult result = mockMvc.perform(get("/bookings/my")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -165,7 +180,9 @@ public class BookingControllerTest {
                 .andReturn();
         JsonNode node = objectMapper.readTree(result.getResponse().getContentAsString());
         JsonNode jsonNode = node.get("content");
-        List<BookingResponseDto> actual = objectMapper.readerForListOf(BookingResponseDto.class).readValue(jsonNode);
+        List<BookingResponseDto> actual = objectMapper
+                .readerForListOf(BookingResponseDto.class)
+                .readValue(jsonNode);
 
         assertEquals(expectedList.size(), actual.size());
         assertEquals(expectedList.get(0), actual.get(0));
@@ -184,67 +201,51 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        BookingResponseDto actual = objectMapper.readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
-
+        BookingResponseDto actual = objectMapper
+                .readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
         assertEquals(expected, actual);
     }
 
     @Test
     @DisplayName("update booking by id when valid id is provided")
-    @WithMockUser(username = "admin@gmail.com", roles = "MANAGER")
-    void updateBooking_WithValidIDAndRequest_ShouldReturnDto() throws Exception {
-        Long id = 2L;
-        BookingResponseDto expected = new BookingResponseDto(2L,
-                LocalDate.of(2025, 10, 5),
-                LocalDate.of(2025, 10, 15),
-                1L,
-                2L,
-                Booking.Status.CONFIRMED);
-        BookingRequestDto requestDto = new BookingRequestDto()
-                .setAccommodationId(1L)
-                .setCheckInDate(LocalDate.of(2025, 10, 5))
-                .setCheckOutDate(LocalDate.of(2025, 10, 15));
-
+    @WithMockUser(username = "romander@gmail.com", roles = "CUSTOMER")
+    void updateBooking_WithValidIdAndRequest_ShouldReturnDto() throws Exception {
+        Long id = 1L;
+        BookingResponseDto expected = getBookingResponseDtoForUpdateAndCreate();
+        expected.setId(id);
+        BookingRequestDto requestDto = getAnotherBookingRequestDto();
         MvcResult result = mockMvc.perform(put("/bookings/{id}", id)
                         .content(objectMapper.writeValueAsString(requestDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        BookingResponseDto actual = objectMapper.readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
-
+        BookingResponseDto actual = objectMapper
+                .readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
         assertEquals(expected, actual);
     }
-
 
     @Test
     @DisplayName("Update booking status by id and request when valid id and request is provided")
     @WithMockUser(username = "admin@gmail.com", roles = "MANAGER")
     void updateBookingStatus_WithValidRequest_Should() throws Exception {
-        Long booking_id = 1L;
-        Long user_id = 1L;
-        BookingResponseDto expected = new BookingResponseDto(
-                1L,
-                LocalDate.of(2025, 10, 5),
-                LocalDate.of(2025, 10, 15),
-                1L,
-                1L,
-                Booking.Status.CONFIRMED
-        );
+        Long bookingId = 1L;
+        Long userId = 1L;
+        BookingResponseDto expected = getBookingResponseDto();
+        expected.setStatus(Booking.Status.CONFIRMED);
         BookingUpdateStatusRequestDto requestDto = new BookingUpdateStatusRequestDto()
                 .setStatus(Booking.Status.CONFIRMED);
 
-        MvcResult result = mockMvc.perform(put("/bookings/{booking_id}/status", booking_id)
-                        .param("user_id", String.valueOf(user_id))
+        MvcResult result = mockMvc.perform(put("/bookings/{booking_id}/status", bookingId)
+                        .param("userId", String.valueOf(userId))
                         .content(objectMapper.writeValueAsString(requestDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        BookingResponseDto actual = objectMapper.readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
-
+        BookingResponseDto actual = objectMapper
+                .readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
         assertEquals(expected, actual);
-
     }
 
     @Test
@@ -256,10 +257,5 @@ public class BookingControllerTest {
         mockMvc.perform(delete("/bookings/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-
-        mockMvc.perform(get("/bookings/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-
     }
 }

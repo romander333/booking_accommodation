@@ -1,17 +1,12 @@
 package com.romander.bookingapp.util;
 
-import com.romander.bookingapp.exception.EntityNotFoundException;
+import static com.romander.bookingapp.util.RoleDataTest.getRole;
+
 import com.romander.bookingapp.model.Role;
 import com.romander.bookingapp.model.User;
-import com.romander.bookingapp.repository.RoleRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.util.Set;
-
-import static com.romander.bookingapp.util.RoleDataTest.getRole;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RequiredArgsConstructor
 public class UserDataTest {

@@ -3,9 +3,7 @@ package com.romander.bookingapp.mapper;
 import com.romander.bookingapp.config.MapperConfig;
 import com.romander.bookingapp.dto.accommodation.AccommodationRequestDto;
 import com.romander.bookingapp.dto.accommodation.AccommodationResponseDto;
-import com.romander.bookingapp.dto.accommodation.AddressDto;
 import com.romander.bookingapp.model.Accommodation;
-import com.romander.bookingapp.model.Address;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -14,7 +12,8 @@ import org.mapstruct.MappingTarget;
 public interface AccommodationMapper {
 
     @Mapping(target = "id", ignore = true)
-    void updateAccommodation(@MappingTarget Accommodation accommodation, AccommodationRequestDto accommodationRequestDto);
+    void updateAccommodation(@MappingTarget Accommodation accommodation,
+                             AccommodationRequestDto accommodationRequestDto);
 
     Accommodation toModel(AccommodationRequestDto requestDto);
 

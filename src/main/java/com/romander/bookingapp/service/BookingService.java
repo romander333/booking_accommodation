@@ -10,7 +10,10 @@ import org.springframework.data.domain.Pageable;
 public interface BookingService {
     BookingResponseDto createBooking(BookingRequestDto bookingRequestDto);
 
-    Page<BookingResponseDto> getBookingsBuUserIdAndStatus(Long userId, Booking.Status status, Pageable pageable);
+    Page<BookingResponseDto> getBookingsBuUserIdAndStatus(
+            Long userId,
+            Booking.Status status,
+            Pageable pageable);
 
     Page<BookingResponseDto> getBookingsByCurrentUser(Pageable pageable);
 
@@ -20,5 +23,8 @@ public interface BookingService {
 
     void deleteBooking(Long id);
 
-    BookingResponseDto updateBookingStatus(Long booking_id, Long user_id, BookingUpdateStatusRequestDto requestDto);
+    BookingResponseDto updateBookingStatus(
+            Long bookingId,
+            Long userId,
+            BookingUpdateStatusRequestDto requestDto);
 }

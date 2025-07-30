@@ -11,13 +11,12 @@ import com.romander.bookingapp.model.User;
 import com.romander.bookingapp.repository.AccommodationRepository;
 import com.romander.bookingapp.repository.BookingRepository;
 import com.romander.bookingapp.security.AuthenticationService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,6 @@ public class BookingServiceImpl implements BookingService {
                 accommodation,
                 currentUser,
                 savedBooking);
-
         return bookingMapper.toDto(savedBooking);
     }
 
@@ -72,7 +70,6 @@ public class BookingServiceImpl implements BookingService {
         Accommodation accommodation = validateAccommodationExists(bookingRequestDto);
         booking.setAccommodation(accommodation);
         bookingMapper.updateBooking(booking, bookingRequestDto);
-
         return bookingMapper.toDto(booking);
     }
 
@@ -95,12 +92,18 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponseDto updateBookingStatus(Long booking_id, Long user_id, BookingUpdateStatusRequestDto requestDto) {
-        Booking booking = bookingRepository.findBookingByUser_IdAndId(user_id, booking_id)
-                        .orElseThrow(() -> new EntityNotFoundException("Can't found booking by id: " + booking_id + " or user id: " + user_id));
+    public BookingResponseDto updateBookingStatus(
+            Long bookingId,
+            Long userId,
+            BookingUpdateStatusRequestDto requestDto) {
+        Booking booking = bookingRepository.findBookingByUser_IdAndId(userId, bookingId)
+                        .orElseThrow(() ->
+                                new EntityNotFoundException("Can't found booking by id: "
+                                + bookingId
+                                + " or user id: "
+                                + userId));
         booking.setStatus(requestDto.getStatus());
         Booking saveBooking = bookingRepository.save(booking);
-
         return bookingMapper.toDto(saveBooking);
     }
 
@@ -108,7 +111,9 @@ public class BookingServiceImpl implements BookingService {
         return authenticationService.getCurrentUser();
     }
 
-    private void checkAccommodationAvailability(BookingRequestDto requestDto, Accommodation accommodation) {
+    private void checkAccommodationAvailability(
+            BookingRequestDto requestDto,
+            Accommodation accommodation) {
         if (accommodation.getAvailability() <= bookingRepository
                 .findOverlappingBookings(
                         accommodation.getId(),

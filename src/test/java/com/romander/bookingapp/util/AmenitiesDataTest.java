@@ -13,7 +13,8 @@ public class AmenitiesDataTest {
 
     public static List<String> getAnotherAmenities() {
         List<String> amenities = new ArrayList<>();
-        amenities.add("Three more or less big bedroom with two toilet and with two dark bathroom");
+        amenities
+                .add("Three more or less big bedroom with two toilet and with two dark bathroom");
         return amenities;
     }
 }

@@ -1,12 +1,11 @@
 package com.romander.bookingapp.dto.accommodation;
 
 import com.romander.bookingapp.model.Accommodation;
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)

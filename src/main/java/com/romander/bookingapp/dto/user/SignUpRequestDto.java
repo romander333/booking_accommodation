@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 
 @Data
 @Password
-public class SignUpRequestDto  {
+public class SignUpRequestDto {
     @NotBlank
     private String firstName;
     @NotBlank

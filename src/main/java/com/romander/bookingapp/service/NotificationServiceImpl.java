@@ -1,19 +1,16 @@
 package com.romander.bookingapp.service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
 @Service
 public class NotificationServiceImpl implements NotificationService {
     private final String token;
     private final String chatId;
-
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     public NotificationServiceImpl(
@@ -29,15 +26,10 @@ public class NotificationServiceImpl implements NotificationService {
                 .queryParam("chat_id", chatId)
                 .queryParam("text", message)
                 .toUriString(), StandardCharsets.UTF_8);
-
         try {
             restTemplate.getForObject(url, String.class);
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-
-
 }

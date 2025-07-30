@@ -2,12 +2,11 @@ package com.romander.bookingapp.service;
 
 import com.romander.bookingapp.model.Booking;
 import com.romander.bookingapp.repository.BookingRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

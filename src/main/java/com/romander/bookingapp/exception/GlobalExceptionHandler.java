@@ -1,5 +1,8 @@
 package com.romander.bookingapp.exception;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -12,11 +15,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String TIMESTAMP_KEY = "timestamp";
@@ -24,8 +22,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String ERROR_KEY = "error";
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid
-            (MethodArgumentNotValidException ex,
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
             HttpHeaders headers,
              HttpStatusCode status,
              WebRequest request) {

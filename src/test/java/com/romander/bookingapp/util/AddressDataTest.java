@@ -12,6 +12,7 @@ public class AddressDataTest {
         address.setZipcode("80193");
         return address;
     }
+
     public static Address getAnotherAddress() {
         Address address = new Address();
         address.setCountry("Ukraine");

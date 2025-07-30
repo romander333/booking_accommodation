@@ -11,9 +11,8 @@ import com.romander.bookingapp.model.Role;
 import com.romander.bookingapp.model.User;
 import com.romander.bookingapp.repository.RoleRepository;
 import com.romander.bookingapp.repository.UserRepository;
-import java.util.Set;
-
 import com.romander.bookingapp.security.AuthenticationService;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,10 +48,10 @@ public class UserServiceImpl implements UserService {
         newUser.setFirstName(requestDto.getFirstName());
         newUser.setLastName(requestDto.getLastName());
         Role role = roleRepository.findByName(Role.RoleName.CUSTOMER)
-                .orElseThrow(() -> new EntityNotFoundException("Role not found by name: " + Role.RoleName.CUSTOMER));
+                .orElseThrow(() -> new EntityNotFoundException("Role not found by name: "
+                        + Role.RoleName.CUSTOMER));
         newUser.setRoles(Set.of(role));
         userRepository.save(newUser);
-
         return userMapper.toDto(newUser);
     }
 
@@ -65,10 +64,8 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByName(requestDto.roleName())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Role not found by name: " + Role.RoleName.CUSTOMER));
-
         user.setRoles(Set.of(role));
     }
-
 
     @Override
     public UserResponseDto updateUser(UserProfileRequestDto requestDto) {
@@ -77,14 +74,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(user);
     }
 
-    @Override
-    public UserResponseDto getProfileInfo() {
-        User user = getCurrentUser();
-        return userMapper.toDto(user);
-    }
-
     private User getCurrentUser() {
         return authenticationService.getCurrentUser();
     }
-
 }

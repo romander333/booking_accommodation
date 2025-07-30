@@ -19,7 +19,8 @@ public class AccommodationServiceImpl implements AccommodationService {
     private final AccommodationRepository accommodationRepository;
     private final AccommodationMapper accommodationMapper;
 
-    public AccommodationResponseDto createAccommodation(AccommodationRequestDto accommodationRequestDto) {
+    public AccommodationResponseDto createAccommodation(
+            AccommodationRequestDto accommodationRequestDto) {
         Accommodation accommodation = accommodationMapper.toModel(accommodationRequestDto);
         accommodation = accommodationRepository.save(accommodation);
         notificationService.sendMessage(String.format(
@@ -33,24 +34,31 @@ public class AccommodationServiceImpl implements AccommodationService {
 
     @Override
     public Page<AccommodationResponseDto> getAccommodations(Pageable pageable) {
-        return accommodationRepository.findAllWithAmenities(pageable).map(accommodationMapper::toDto);
+        return accommodationRepository
+                .findAllWithAmenities(pageable)
+                .map(accommodationMapper::toDto);
     }
 
     @Override
     public AccommodationResponseDto getAccommodationById(Long id) {
         Accommodation accommodation = accommodationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Accommodation not found by id: " + id));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Accommodation not found by id: " + id));
         return accommodationMapper.toDto(accommodation);
     }
 
     @Override
     @Transactional
-    public AccommodationResponseDto updateAccommodation(Long id, AccommodationRequestDto requestDto) {
+    public AccommodationResponseDto updateAccommodation(
+            Long id,
+            AccommodationRequestDto requestDto) {
         Accommodation accommodation = accommodationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Accommodation not found by id: " + id));
-        Integer oldAvailability  = accommodation.getAvailability();
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Accommodation not found by id: " + id));
+        Integer oldAvailability = accommodation.getAvailability();
         accommodationMapper.updateAccommodation(accommodation, requestDto);
-        if (requestDto.getAvailability() != null && oldAvailability  < requestDto.getAvailability()) {
+        if (requestDto.getAvailability() != null
+                && oldAvailability < requestDto.getAvailability()) {
             notificationService.sendMessage(String.format(
                     "The housing is vacated!\nAccommodation ID: %d\nNew accessibility: %d",
                     accommodation.getId(),
@@ -63,7 +71,8 @@ public class AccommodationServiceImpl implements AccommodationService {
     @Override
     public void deleteAccommodation(Long id) {
         accommodationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Accommodation not found by id: " + id));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Accommodation not found by id: " + id));
         accommodationRepository.deleteById(id);
     }
 }
