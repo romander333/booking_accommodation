@@ -59,7 +59,6 @@ public class PaymentController {
                     .orElse(null);
 
             if (session != null) {
-                System.out.println("Payment successful for session: " + session.getId());
                 paymentService.handleSuccessfulPayment(session);
             }
         }

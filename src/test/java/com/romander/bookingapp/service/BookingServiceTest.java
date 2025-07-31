@@ -7,7 +7,7 @@ import static com.romander.bookingapp.util.BookingDataTest.getBooking;
 import static com.romander.bookingapp.util.BookingDataTest.getBookingRequestDto;
 import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDto;
 import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDtoFotUpdateAndCreate;
-import static com.romander.bookingapp.util.UserDataTest.sampleUser;
+import static com.romander.bookingapp.util.UserDataTest.getSampleUser;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -62,7 +62,7 @@ public class BookingServiceTest {
     void createBooking_WithValidRequest_ShouldReturnDto() {
         Long id = 1L;
         Accommodation accommodation = getAccommodation();
-        User user = sampleUser(id);
+        User user = getSampleUser();
         Booking booking = getBooking();
         BookingRequestDto requestDto = getBookingRequestDto();
         BookingResponseDto expected = getBookingResponseDto();
@@ -110,7 +110,7 @@ public class BookingServiceTest {
     void getBookingsByCurrentUser_WithCurrentUser_ShouldReturnPage() {
         Long id = 1L;
         Pageable pageable = PageRequest.of(0, 10);
-        User user = sampleUser(id);
+        User user = getSampleUser();
         Booking booking = getBooking();
         BookingResponseDto expected = getBookingResponseDto();
         Page<Booking> expectedPage = new PageImpl<>(Arrays.asList(booking));
@@ -171,7 +171,7 @@ public class BookingServiceTest {
 
         when(bookingRepository.findById(id)).thenReturn(Optional.of(booking));
         when(bookingRepository.save(booking)).thenReturn(savedBooking);
-        when(authenticationService.getCurrentUser()).thenReturn(sampleUser(id));
+        when(authenticationService.getCurrentUser()).thenReturn(getSampleUser());
 
         bookingService.deleteBooking(id);
         verify(bookingRepository).findById(id);

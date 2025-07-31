@@ -1,7 +1,7 @@
 package com.romander.bookingapp.util;
 
 import static com.romander.bookingapp.util.AccommodationDataTest.getAccommodation;
-import static com.romander.bookingapp.util.UserDataTest.sampleUser;
+import static com.romander.bookingapp.util.UserDataTest.getSampleUser;
 
 import com.romander.bookingapp.dto.booking.BookingRequestDto;
 import com.romander.bookingapp.dto.booking.BookingResponseDto;
@@ -14,7 +14,7 @@ public class BookingDataTest {
 
     public static Booking getBooking() {
         Booking booking = new Booking();
-        User user = sampleUser(1L);
+        User user = getSampleUser();
         booking.setUser(user);
         booking.setAccommodation(getAccommodation());
         booking.setId(1L);
@@ -27,7 +27,7 @@ public class BookingDataTest {
 
     public static Booking getAnotherBooking() {
         Booking booking = new Booking();
-        User user = sampleUser(2L);
+        User user = getSampleUser();
         booking.setUser(user);
         booking.setAccommodation(getAccommodation());
         booking.setId(2L);

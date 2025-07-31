@@ -1,7 +1,7 @@
 package com.romander.bookingapp.repository;
 
 import static com.romander.bookingapp.util.BookingDataTest.getBooking;
-import static com.romander.bookingapp.util.UserDataTest.sampleUser;
+import static com.romander.bookingapp.util.UserDataTest.getSampleUser;
 import static org.junit.Assert.assertEquals;
 
 import com.romander.bookingapp.model.Booking;
@@ -84,7 +84,7 @@ public class BookingRepositoryTest {
 
     @Test
     void findBookingByUser_WithValidUser_ShouldReturn_Page() {
-        User user = sampleUser(1L);
+        User user = getSampleUser();
         Booking expected = getBooking();
         Pageable pageable = PageRequest.of(0, 10);
         Page<Booking> actual = bookingRepository.findBookingByUser_Id(user.getId(), pageable);
