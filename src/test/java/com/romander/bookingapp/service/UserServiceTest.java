@@ -1,5 +1,20 @@
 package com.romander.bookingapp.service;
 
+import static com.romander.bookingapp.util.RoleDataTest.getAnotherRole;
+import static com.romander.bookingapp.util.RoleDataTest.getRole;
+import static com.romander.bookingapp.util.RoleDataTest.getRoleRequestDto;
+import static com.romander.bookingapp.util.UserDataTest.createSampleUser;
+import static com.romander.bookingapp.util.UserDataTest.getExistSampleSignUpRequestDto;
+import static com.romander.bookingapp.util.UserDataTest.getSampleSignUpRequestDto;
+import static com.romander.bookingapp.util.UserDataTest.getSampleUserProfileRequestDto;
+import static com.romander.bookingapp.util.UserDataTest.getSampleUserResponseDto;
+import static com.romander.bookingapp.util.UserDataTest.getUpdateSampleUserResponseDto;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
 import com.romander.bookingapp.dto.user.RoleRequestDto;
 import com.romander.bookingapp.dto.user.SignUpRequestDto;
 import com.romander.bookingapp.dto.user.UserProfileRequestDto;
@@ -12,24 +27,14 @@ import com.romander.bookingapp.model.User;
 import com.romander.bookingapp.repository.RoleRepository;
 import com.romander.bookingapp.repository.UserRepository;
 import com.romander.bookingapp.security.AuthenticationService;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-
-import java.util.Optional;
-import java.util.Set;
-
-import static com.romander.bookingapp.util.RoleDataTest.*;
-import static com.romander.bookingapp.util.UserDataTest.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -54,12 +59,12 @@ public class UserServiceTest {
 
     @Test
     void registerUser_WithValidRequest_ShouldReturnDto() {
-        Role role = getRole();
         String email = "eva@gmail.com";
         User user = createSampleUser();
         String encode = "password123";
         User savedUser = createSampleUser();
         savedUser.setPassword(encode);
+        Role role = getRole();
         UserResponseDto expected = getSampleUserResponseDto();
         SignUpRequestDto requestDto = getSampleSignUpRequestDto();
 
@@ -121,10 +126,7 @@ public class UserServiceTest {
     void updateUser_WithValidRequest_ShouldReturnDto() {
         UserResponseDto expected = getUpdateSampleUserResponseDto();
         User user = createSampleUser();
-        UserProfileRequestDto requestDto = new UserProfileRequestDto()
-                .setFirstName("Evelina")
-                .setLastName("Gaviley");
-
+        UserProfileRequestDto requestDto = getSampleUserProfileRequestDto();
         when(authenticationService.getCurrentUser()).thenReturn(user);
         doNothing().when(userMapper).updateUser(user, requestDto);
         when(userMapper.toDto(user)).thenReturn(expected);
@@ -132,6 +134,4 @@ public class UserServiceTest {
         UserResponseDto actual = userService.updateUser(requestDto);
         assertEquals(expected, actual);
     }
-
-
 }

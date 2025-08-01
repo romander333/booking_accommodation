@@ -2,18 +2,15 @@ package com.romander.bookingapp.util;
 
 import static com.romander.bookingapp.util.RoleDataTest.getRole;
 
+import com.romander.bookingapp.dto.user.SignInRequestDto;
 import com.romander.bookingapp.dto.user.SignUpRequestDto;
 import com.romander.bookingapp.dto.user.UserProfileRequestDto;
 import com.romander.bookingapp.dto.user.UserResponseDto;
 import com.romander.bookingapp.model.Role;
 import com.romander.bookingapp.model.User;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-@RequiredArgsConstructor
 public class UserDataTest {
-    private final PasswordEncoder passwordEncoder;
 
     public static User getSampleUser() {
         User user = new User();
@@ -48,8 +45,8 @@ public class UserDataTest {
 
     public static UserResponseDto getUpdateSampleUserResponseDto() {
         return new UserResponseDto(
-                "Eva@gmail.com",
-                "eva",
+                "eva@gmail.com",
+                "Evelina",
                 "Gaviley");
     }
 
@@ -69,5 +66,17 @@ public class UserDataTest {
                 .setConfirmPassword("password123")
                 .setFirstName("Roman")
                 .setLastName("Luch");
+    }
+
+    public static SignInRequestDto getSignInRequestDto() {
+        return new SignInRequestDto()
+                .setEmail("romander@gmail.com")
+                .setPassword("11221122");
+    }
+
+    public static UserProfileRequestDto getSampleUserProfileRequestDto() {
+        return new UserProfileRequestDto()
+                .setFirstName("Evelina")
+                .setLastName("Gaviley");
     }
 }

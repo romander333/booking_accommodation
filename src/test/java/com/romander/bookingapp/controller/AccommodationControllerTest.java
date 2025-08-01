@@ -21,14 +21,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.romander.bookingapp.dto.accommodation.AccommodationRequestDto;
 import com.romander.bookingapp.dto.accommodation.AccommodationResponseDto;
 import com.romander.bookingapp.dto.accommodation.AddressDto;
+import com.romander.bookingapp.service.NotificationService;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
-
-import com.romander.bookingapp.service.NotificationService;
-import com.romander.bookingapp.service.PaymentService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
