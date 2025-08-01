@@ -12,7 +12,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: 08122005rR
           MYSQL_DATABASE: booking_service
-          MYSQL_USER: root
+          MYSQL_USER: admin
           MYSQL_PASSWORD: 08122005rR
         ports:
           - 3306:3306
