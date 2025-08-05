@@ -30,7 +30,8 @@ jobs:
       - name: Create application-test.properties from secrets
         run: |
           mkdir -p src/test/resources
-          printf "jwt.secret=%s\nstripe.secret.key=%s\ntelegram.token=%s\ntelegram.chatId=%s\nstripe.webhook.endPoint=%s\n" \
+          printf "jwt.secret=%s\nstripe.secret.key=%s\ntelegram.token=%s\
+          ntelegram.chatId=%s\nstripe.webhook.endPoint=%s\n" \
           "${{ secrets.JWT_SECRET }}" \
           "${{ secrets.STRIPE_SECRET_KEY }}" \
           "${{ secrets.TELEGRAM_TOKEN }}" \
