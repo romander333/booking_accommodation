@@ -19,6 +19,7 @@ import com.romander.bookingapp.dto.booking.BookingRequestDto;
 import com.romander.bookingapp.dto.booking.BookingResponseDto;
 import com.romander.bookingapp.dto.booking.BookingUpdateStatusRequestDto;
 import com.romander.bookingapp.model.Booking;
+import com.romander.bookingapp.service.NotificationService;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
@@ -56,6 +58,9 @@ public class BookingControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @MockBean
+    private NotificationService notificationService;
 
     @BeforeAll
     void beforeAll() {
