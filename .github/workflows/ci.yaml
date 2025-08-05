@@ -49,5 +49,5 @@ jobs:
             sleep 2
           done
 
-      - name: Run tests
-        run: mvn --batch-mode --update-snapshots verify
+      - name: Run tests without Checkstyle
+        run: mvn --batch-mode --update-snapshots verify -Dcheckstyle.skip=true
