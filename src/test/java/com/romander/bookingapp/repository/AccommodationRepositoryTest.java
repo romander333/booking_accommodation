@@ -10,6 +10,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -61,6 +62,7 @@ public class AccommodationRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find all Amenities with given valid catalog")
     void findAllWithAmenities_WithGivenValidCatalog_ShouldReturnPage() {
         Pageable pageable = PageRequest.of(0, 10);
         Accommodation expected = getAccommodation();
@@ -70,6 +72,7 @@ public class AccommodationRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find Accommodation by id when valid id is provided")
     void findById_WithValidId_ShouldReturnAccommodation() {
         Long id = 1L;
         Accommodation expected = getAccommodation();

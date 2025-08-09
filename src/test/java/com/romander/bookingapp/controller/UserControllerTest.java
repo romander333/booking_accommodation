@@ -1,6 +1,7 @@
 package com.romander.bookingapp.controller;
 
 import static com.romander.bookingapp.util.RoleDataTest.getRoleRequestDto;
+import static com.romander.bookingapp.util.UserDataTest.createSampleUser;
 import static com.romander.bookingapp.util.UserDataTest.getSampleUserProfileRequestDto;
 import static com.romander.bookingapp.util.UserDataTest.getUpdateSampleUserResponseDto;
 import static org.junit.Assert.assertEquals;
@@ -28,6 +29,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,6 +57,14 @@ public class UserControllerTest {
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
                 .build();
+        User testUser = createSampleUser();
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                testUser,
+                null,
+                testUser.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @BeforeEach
@@ -67,7 +79,7 @@ public class UserControllerTest {
     }
 
     @AfterEach
-    void tearDown(@Autowired DataSource dataSource) throws SQLException {
+    void tearDown(@Autowired DataSource dataSource) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(
@@ -80,7 +92,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "manager", roles = "MANAGER")
+    @WithMockUser(username = "admin@gmail.com", roles = "MANAGER")
     void updateRoleByUserId_WithValidId_ShouldSetRole() throws Exception {
         Long id = 3L;
         RoleRequestDto requestDto = getRoleRequestDto();
@@ -98,7 +110,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "eva@gmail.com", roles = "CUSTOMER")
     void updateUser_WithValidRequest_ShouldReturnDto() throws Exception {
         UserProfileRequestDto requestDto = getSampleUserProfileRequestDto();
         UserResponseDto expected = getUpdateSampleUserResponseDto();

@@ -55,6 +55,6 @@ databaseChangeLog:
             baseTableName: bookings
             constraintName: fk_accommodation_booking
             referencedColumnNames: id
-            referencedTableName: accommodation
+            referencedTableName: accommodations
             onDelete: CASCADE
 

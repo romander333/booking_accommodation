@@ -4,6 +4,7 @@ import static com.romander.bookingapp.util.BookingDataTest.getAnotherBookingRequ
 import static com.romander.bookingapp.util.BookingDataTest.getAnotherBookingResponseDto;
 import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDto;
 import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDtoForUpdateAndCreate;
+import static com.romander.bookingapp.util.UserDataTest.getManagerSampleUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -19,6 +20,7 @@ import com.romander.bookingapp.dto.booking.BookingRequestDto;
 import com.romander.bookingapp.dto.booking.BookingResponseDto;
 import com.romander.bookingapp.dto.booking.BookingUpdateStatusRequestDto;
 import com.romander.bookingapp.model.Booking;
+import com.romander.bookingapp.model.User;
 import com.romander.bookingapp.service.NotificationService;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,6 +40,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -92,6 +97,15 @@ public class BookingControllerTest {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        User testUser = getManagerSampleUser();
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                testUser,
+                null,
+                testUser.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @AfterEach
@@ -136,17 +150,13 @@ public class BookingControllerTest {
 
         BookingResponseDto actual = objectMapper
                 .readValue(result.getResponse().getContentAsString(), BookingResponseDto.class);
-
-        System.out.println(actual);
-        System.out.println(expected);
         assertTrue(EqualsBuilder.reflectionEquals(expected, actual, "createdAt"));
     }
 
     @Test
     @DisplayName("Get bookings by id and status when is provided valid data")
-    @WithMockUser(username = "admin@gmail.com", roles = "MANAGER")
     void getBooking_WithValidId_ShouldReturnDto() throws Exception {
-        Long userId = 1L;
+        Long userId = 2L;
         BookingResponseDto expected = getBookingResponseDto();
         List<BookingResponseDto> expectedList = new ArrayList<>();
         expectedList.add(expected);
@@ -171,7 +181,6 @@ public class BookingControllerTest {
 
     @Test
     @DisplayName("Get bookings by current user")
-    @WithMockUser(username = "romander@gmail.com", roles = "CUSTOMER")
     void getBookingsByCurrentUser_WithValidUSer_ShouldReturnDto() throws Exception {
         BookingResponseDto expected = getBookingResponseDto();
         BookingResponseDto expected2 = getAnotherBookingResponseDto();
@@ -196,7 +205,6 @@ public class BookingControllerTest {
 
     @Test
     @DisplayName("Get specific booking by id when valid id is provided")
-    @WithMockUser(username = "admin@gmail.com", roles = "MANAGER")
     void getSpecificBooking_WithValidId_ShouldReturnDto() throws Exception {
         Long id = 1L;
         BookingResponseDto expected = getBookingResponseDto();
@@ -213,10 +221,10 @@ public class BookingControllerTest {
 
     @Test
     @DisplayName("update booking by id when valid id is provided")
-    @WithMockUser(username = "romander@gmail.com", roles = "CUSTOMER")
     void updateBooking_WithValidIdAndRequest_ShouldReturnDto() throws Exception {
-        Long id = 1L;
+        Long id = 2L;
         BookingResponseDto expected = getBookingResponseDtoForUpdateAndCreate();
+        expected.setStatus(Booking.Status.CONFIRMED);
         expected.setId(id);
         BookingRequestDto requestDto = getAnotherBookingRequestDto();
         MvcResult result = mockMvc.perform(put("/bookings/{id}", id)
@@ -232,10 +240,9 @@ public class BookingControllerTest {
 
     @Test
     @DisplayName("Update booking status by id and request when valid id and request is provided")
-    @WithMockUser(username = "admin@gmail.com", roles = "MANAGER")
     void updateBookingStatus_WithValidRequest_Should() throws Exception {
         Long bookingId = 1L;
-        Long userId = 1L;
+        Long userId = 2L;
         BookingResponseDto expected = getBookingResponseDto();
         expected.setStatus(Booking.Status.CONFIRMED);
         BookingUpdateStatusRequestDto requestDto = new BookingUpdateStatusRequestDto()
@@ -255,7 +262,6 @@ public class BookingControllerTest {
 
     @Test
     @DisplayName("Delete booking by id when valid id is provided")
-    @WithMockUser(username = "admin@gmail.com", roles = {"CUSTOMER", "MANAGER"})
     void deleteBooking_WithValidId_ShouldReturnNoContentStatus() throws Exception {
         Long id = 2L;
 

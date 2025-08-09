@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
       author: roman
-      id: create-accommodation-table
+      id: create-accommodations-table
       changes:
         - createTable:
-            tableName: accommodation
+            tableName: accommodations
             columns:
               - column:
                   name: id

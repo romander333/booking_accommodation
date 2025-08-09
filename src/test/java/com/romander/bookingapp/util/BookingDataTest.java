@@ -1,6 +1,7 @@
 package com.romander.bookingapp.util;
 
 import static com.romander.bookingapp.util.AccommodationDataTest.getAccommodation;
+import static com.romander.bookingapp.util.UserDataTest.getManagerSampleUser;
 import static com.romander.bookingapp.util.UserDataTest.getSampleUser;
 
 import com.romander.bookingapp.dto.booking.BookingRequestDto;
@@ -14,7 +15,7 @@ public class BookingDataTest {
 
     public static Booking getBooking() {
         Booking booking = new Booking();
-        User user = getSampleUser();
+        User user = getManagerSampleUser();
         booking.setUser(user);
         booking.setAccommodation(getAccommodation());
         booking.setId(1L);
@@ -43,7 +44,7 @@ public class BookingDataTest {
                 .setCheckInDate(LocalDate.of(2025, 10, 5))
                 .setCheckOutDate(LocalDate.of(2025, 10, 15))
                 .setAccommodationId(1L)
-                .setUserId(1L)
+                .setUserId(2L)
                 .setCreatedAt(LocalDateTime.of(2025, 7, 30, 10,0,0))
                 .setStatus(Booking.Status.PENDING);
     }
@@ -65,7 +66,7 @@ public class BookingDataTest {
                 .setCheckInDate(LocalDate.of(2026, 10, 10))
                 .setCheckOutDate(LocalDate.of(2026, 11, 12))
                 .setAccommodationId(1L)
-                .setUserId(1L)
+                .setUserId(2L)
                 .setCreatedAt(LocalDateTime.of(2025, 7, 30, 10,0,0))
                 .setStatus(Booking.Status.PENDING);
     }

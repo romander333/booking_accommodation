@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final NotificationService notificationService;
 
     @Override
+    @Transactional
     public PaymentResponseDto pay(Long id) throws StripeException {
         Booking booking = getBooking(id);
         Long amount = calculateTotalPrice(booking);
@@ -60,6 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void handleSuccessfulPayment(Session session) {
         String sessionId = session.getId();
 

@@ -1,6 +1,7 @@
 package com.romander.bookingapp.util;
 
 import static com.romander.bookingapp.util.RoleDataTest.getRole;
+import static com.romander.bookingapp.util.RoleDataTest.getRoles;
 
 import com.romander.bookingapp.dto.user.SignInRequestDto;
 import com.romander.bookingapp.dto.user.SignUpRequestDto;
@@ -11,6 +12,17 @@ import com.romander.bookingapp.model.User;
 import java.util.Set;
 
 public class UserDataTest {
+
+    public static User getManagerSampleUser() {
+        User user = new User();
+        user.setId(2L);
+        user.setEmail("admin@gmail.com");
+        user.setFirstName("Admin");
+        user.setLastName("Manager");
+        user.setPassword("$2a$12$C2OnjlEg.PgOom6mbfdScuJY/8e3L7EhC0m7Y4WWnZPSqZeTa6wXm");
+        user.setRoles(getRoles());
+        return user;
+    }
 
     public static User getSampleUser() {
         User user = new User();
