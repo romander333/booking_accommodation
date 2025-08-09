@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +15,7 @@ public class BookingCleanupService {
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
 
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void cancelStaleBookings() {
         LocalDateTime timeLimit = LocalDateTime.now().minusHours(24);

@@ -29,6 +29,7 @@ import com.romander.bookingapp.repository.UserRepository;
 import com.romander.bookingapp.security.AuthenticationService;
 import java.util.Optional;
 import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -58,6 +59,7 @@ public class UserServiceTest {
     private AuthenticationService authenticationService;
 
     @Test
+    @DisplayName("Register user with request when valid request is provided")
     void registerUser_WithValidRequest_ShouldReturnDto() {
         String email = "eva@gmail.com";
         User user = createSampleUser();
@@ -82,6 +84,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Register user with request when Invalid request is provided")
     void registerUser_WithExistEmail_ShouldReturnDto() {
         SignUpRequestDto requestDto = getExistSampleSignUpRequestDto();
 
@@ -95,6 +98,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Update users role with invalid id")
     void updateRoleByUserId_WithInvalidId_ShouldThrowEntityNotFoundException() {
         Long userId = -10L;
         RoleRequestDto requestDto = getRoleRequestDto();
@@ -105,6 +109,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Update users role with id when valid id is provided")
     void updateRoleByUserId_WithValidId_ShouldSetRole() {
         Long userId = 1L;
         Role role = getAnotherRole();
@@ -123,6 +128,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Update user with request when valid request is provided")
     void updateUser_WithValidRequest_ShouldReturnDto() {
         UserResponseDto expected = getUpdateSampleUserResponseDto();
         User user = createSampleUser();

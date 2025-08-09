@@ -9,6 +9,7 @@ import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDto
 import static com.romander.bookingapp.util.BookingDataTest.getBookingResponseDtoFotUpdateAndCreate;
 import static com.romander.bookingapp.util.UserDataTest.getSampleUser;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.when;
 import com.romander.bookingapp.dto.booking.BookingRequestDto;
 import com.romander.bookingapp.dto.booking.BookingResponseDto;
 import com.romander.bookingapp.dto.booking.BookingUpdateStatusRequestDto;
+import com.romander.bookingapp.exception.EntityNotFoundException;
 import com.romander.bookingapp.mapper.BookingMapper;
 import com.romander.bookingapp.model.Accommodation;
 import com.romander.bookingapp.model.Booking;
@@ -80,6 +82,19 @@ public class BookingServiceTest {
         verify(bookingRepository).save(booking);
         verify(authenticationService).getCurrentUser();
         verify(accommodationRepository).findById(id);
+    }
+
+    @Test
+    @DisplayName("Create Booking when invalid Accommodation id is provided")
+    void createBooking_WithInvalidRequest_ShouldThrowException() {
+        Long id = -11L;
+        BookingRequestDto requestDto = getBookingRequestDto();
+        requestDto.setAccommodationId(id);
+
+        Exception exception = assertThrows(EntityNotFoundException.class,
+                () -> bookingService.createBooking(requestDto));
+
+        assertEquals("Accommodation not found by id: " + id, exception.getMessage());
     }
 
     @Test
@@ -162,6 +177,17 @@ public class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Get Booking by id when invalid booking id is provided")
+    void getBookingById_WithInvalidId_ShouldThrowException() {
+        Long id = -12L;
+
+        Exception exception = assertThrows(EntityNotFoundException.class,
+                () -> bookingService.getBookingById(id));
+
+        assertEquals("Can't found booking by id: " + id, exception.getMessage());
+    }
+
+    @Test
     @DisplayName("Delete Booking by id when valid booking id is provided")
     void deleteBooking_WithValidId_ShouldReturnDto() {
         Long id = 2L;
@@ -176,6 +202,21 @@ public class BookingServiceTest {
         bookingService.deleteBooking(id);
         verify(bookingRepository).findById(id);
         verify(bookingRepository).save(savedBooking);
+    }
+
+    @Test
+    @DisplayName("Delete Booking by id when Cancel booking status is provided")
+    void deleteBooking_WithCancelStatus_ShouldThrowException() {
+        Booking booking = getAnotherBooking();
+        booking.setStatus(Booking.Status.CANCELED);
+        when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
+
+        Exception exception = assertThrows(IllegalStateException.class,
+                () -> bookingService.deleteBooking(booking.getId()));
+
+        assertEquals("This accommodation by booking id: "
+                + booking.getId()
+                + " has already been canceled", exception.getMessage());
     }
 
     @Test

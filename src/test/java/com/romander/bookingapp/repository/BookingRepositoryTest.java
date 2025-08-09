@@ -1,7 +1,7 @@
 package com.romander.bookingapp.repository;
 
 import static com.romander.bookingapp.util.BookingDataTest.getBooking;
-import static com.romander.bookingapp.util.UserDataTest.getSampleUser;
+import static com.romander.bookingapp.util.UserDataTest.getManagerSampleUser;
 import static org.junit.Assert.assertEquals;
 
 import com.romander.bookingapp.model.Booking;
@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -72,10 +73,11 @@ public class BookingRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find all Booking by valid id and status")
     void findAllByUser_IdAndStatus_WithValidId_ShouldReturnPage() {
         Pageable pageable = PageRequest.of(0, 10);
         Booking expected = getBooking();
-        Long userId = 1L;
+        Long userId = 2L;
         Booking.Status status = Booking.Status.PENDING;
         Page<Booking> actual = bookingRepository
                 .findAllByUser_IdAndStatus(userId, status, pageable);
@@ -83,21 +85,22 @@ public class BookingRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find booking by valid user")
     void findBookingByUser_WithValidUser_ShouldReturn_Page() {
-        User user = getSampleUser();
+        User user = getManagerSampleUser();
         Booking expected = getBooking();
         Pageable pageable = PageRequest.of(0, 10);
         Page<Booking> actual = bookingRepository.findBookingByUser_Id(user.getId(), pageable);
         assertEquals(expected, actual.getContent().get(0));
-
     }
 
     @Test
+    @DisplayName("Find booking by valid user id and booking id")
     void findBookingByUser_IdAndId_WithValidId_ShouldReturnBooking() {
         Booking expected = getBooking();
-        Long userAndAccommodationId = 1L;
+        Long userAndAccommodationId = 2L;
         Optional<Booking> actual = bookingRepository
-                .findBookingByUser_IdAndId(userAndAccommodationId, userAndAccommodationId);
+                .findBookingByUser_IdAndId(userAndAccommodationId, 1L);
         assertEquals(expected, actual.get());
     }
 }

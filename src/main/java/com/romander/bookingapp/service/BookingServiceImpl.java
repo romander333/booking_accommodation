@@ -28,6 +28,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingMapper bookingMapper;
 
     @Override
+    @Transactional
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
         User currentUser = getCurrentUser();
         Accommodation accommodation = validateAccommodationExists(bookingRequestDto);
@@ -74,6 +75,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public void deleteBooking(Long id) {
         Booking booking = getBooking(id);
         if (booking.getStatus() == Booking.Status.CANCELED) {

@@ -38,15 +38,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, headers, status);
     }
 
-    private String getErrorMessage(ObjectError error) {
-        if (error instanceof FieldError fieldError) {
-            String field = fieldError.getField();
-            String errorMessage = error.getDefaultMessage();
-            return field + ": " + errorMessage;
-        }
-        return error.getDefaultMessage();
-    }
-
     @ExceptionHandler
     public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -54,6 +45,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handleRegistrationException(RegistrationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    private String getErrorMessage(ObjectError error) {
+        if (error instanceof FieldError fieldError) {
+            String field = fieldError.getField();
+            String errorMessage = error.getDefaultMessage();
+            return field + ": " + errorMessage;
+        }
+        return error.getDefaultMessage();
     }
 }

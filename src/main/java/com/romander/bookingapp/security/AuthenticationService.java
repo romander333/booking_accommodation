@@ -3,7 +3,6 @@ package com.romander.bookingapp.security;
 import com.romander.bookingapp.dto.user.SignInRequestDto;
 import com.romander.bookingapp.dto.user.UserSignInResponseDto;
 import com.romander.bookingapp.model.User;
-import com.romander.bookingapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class AuthenticationService {
     private final JwtCore jwtCore;
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
 
     public UserSignInResponseDto authenticate(SignInRequestDto signInRequestDto) {
         final Authentication authentication = authenticationManager.authenticate(
@@ -32,8 +30,6 @@ public class AuthenticationService {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Authentication required");
         }
-        String email = authentication.getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found by email: " + email));
+        return (User) authentication.getPrincipal();
     }
 }

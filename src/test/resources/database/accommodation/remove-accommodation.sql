@@ -1,1 +1,1 @@
-delete from accommodation
+delete from accommodations

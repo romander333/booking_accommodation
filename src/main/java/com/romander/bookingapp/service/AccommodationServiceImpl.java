@@ -19,6 +19,8 @@ public class AccommodationServiceImpl implements AccommodationService {
     private final AccommodationRepository accommodationRepository;
     private final AccommodationMapper accommodationMapper;
 
+    @Transactional
+    @Override
     public AccommodationResponseDto createAccommodation(
             AccommodationRequestDto accommodationRequestDto) {
         Accommodation accommodation = accommodationMapper.toModel(accommodationRequestDto);
@@ -69,6 +71,7 @@ public class AccommodationServiceImpl implements AccommodationService {
     }
 
     @Override
+    @Transactional
     public void deleteAccommodation(Long id) {
         accommodationRepository.findById(id)
                 .orElseThrow(() ->

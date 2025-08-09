@@ -4,6 +4,7 @@ import static com.romander.bookingapp.util.AuthenticationDataTest.getAuthenticat
 import static com.romander.bookingapp.util.UserDataTest.getSampleUser;
 import static com.romander.bookingapp.util.UserDataTest.getSignInRequestDto;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,10 +12,9 @@ import static org.mockito.Mockito.when;
 import com.romander.bookingapp.dto.user.SignInRequestDto;
 import com.romander.bookingapp.dto.user.UserSignInResponseDto;
 import com.romander.bookingapp.model.User;
-import com.romander.bookingapp.repository.UserRepository;
 import com.romander.bookingapp.security.AuthenticationService;
 import com.romander.bookingapp.security.JwtCore;
-import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,10 +36,8 @@ public class AuthenticationServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
-    @Mock
-    private UserRepository userRepository;
-
     @Test
+    @DisplayName("Authenticate with request when valid request is provided")
     void authenticate_WithValidRequest_ShouldReturnDto() {
         SignInRequestDto requestDto = getSignInRequestDto();
         User user = getSampleUser();
@@ -56,21 +54,28 @@ public class AuthenticationServiceTest {
     }
 
     @Test
+    @DisplayName("Get current user")
     void getCurrentUser_WithValidData_ShouldReturnUser() {
-        String email = "romander@gmail.com";
+        User expected = getSampleUser();
         Authentication authentication = mock(Authentication.class);
-        when(authentication.getName()).thenReturn(email);
+        when(authentication.getPrincipal()).thenReturn(expected);
         when(authentication.isAuthenticated()).thenReturn(true);
 
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-        User expected = getSampleUser();
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(expected));
 
         User actual = authenticationService.getCurrentUser();
 
         assertEquals(expected, actual);
+    }
+
+    @Test
+    @DisplayName("Get current user")
+    void getCurrentUser_WithNotAuthenticatedUser_ShouldThrowException() {
+        Exception exception = assertThrows(RuntimeException.class,
+                () -> authenticationService.getCurrentUser());
+
+        assertEquals("Authentication required", exception.getMessage());
     }
 }
