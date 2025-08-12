@@ -1,51 +1,66 @@
 # 🏡 Booking System — Accommodation Reservation App
 ## 🔹 Introduction
 This project was both an interesting and valuable experience for me.
+
 The idea came after my recent vacation, where I had to book accommodations through a third-party platform. I thought:
 
 “Why not create something like this myself?”
 
-That's how this system was born — with user registration, accommodation listing, booking, online payments, and status management.
+The system includes:
 
-## 🔹 Technologies Used
-Java 17
+👤 User registration
 
-Spring Boot (Core framework)
+🏠 Accommodation listing
 
-Spring Security + JWT (authentication/authorization)
+📅 Booking
 
-Spring Web (REST API)
+💳 Online payments
 
-Spring Data JPA + Hibernate
+🔄 Status management
 
-Liquibase (for DB migrations)
+🔹 Technologies Used
+☕ Java 17
 
-Docker (containerization)
+🚀 Spring Boot (Core framework)
 
-Stripe API (online payments integration)
+🔐 Spring Security + JWT (authentication/authorization)
 
-Telegram Bot API (user notifications)
+🌐 Spring Web (REST API)
 
-Ngrok (public webhook tunneling)
+🗄 Spring Data JPA + Hibernate
 
-MapStruct (DTO ↔ Entity mapping)
+🔄 Liquibase (DB migrations)
 
-JUnit & Integration Tests (testing)
+📦 Docker (containerization)
+
+💳 Stripe API (payments)
+
+🤖 Telegram Bot API (notifications)
+
+🌍 Ngrok (webhook tunneling)
+
+🔄 MapStruct (DTO ↔ Entity mapping)
+
+🧪 JUnit & Integration Tests
+
 
 ## 🔹 Main Functionalities
-ℹ️ All endpoints use the base path: /api
+ℹ️ Base path: /api
 
-🔐 AuthController
+1. 🔐 AuthController
+
 POST /register — Register new user
 
 POST /login — User login
 
-👤 UserController
+2. 👤 UserController
+
 PUT /update-role — Update user role
 
 PUT /update-profile — Edit profile
 
-🏠 AccommodationController
+3. 🏠 AccommodationController
+
 POST /accommodation — Create accommodation
 
 GET /accommodations — View all listings
@@ -56,7 +71,8 @@ PUT /accommodation/{id} — Update listing
 
 DELETE /accommodation/{id} — Delete listing
 
-📅 BookingController
+4. 📅 BookingController
+
 POST /booking — Create a booking
 
 GET /bookings — View bookings by status
@@ -71,13 +87,14 @@ PUT /booking/status/{id} — Change booking status
 
 DELETE /booking/{id} — Cancel booking
 
-💳 PaymentController
+5. 💳 PaymentController
+
 POST /payment — Create payment via Stripe
 
 Stripe webhook — Automatically updates status after successful payment
 
 ## 🔹 How to Run the Project
-⚠️ Required tools:
+⚠ Required tools:
 
 Docker
 
@@ -87,43 +104,40 @@ MySQL (or container)
 
 Ngrok account (for Stripe webhook)
 
-🔧 Steps
-Clone the repository:
+🔧 Steps:
 
+bash
+# 1. Clone the repository
 git clone https://github.com/romander333/booking_accommodation.git
 cd booking_accommodation
-Configure .env or application.yml (Stripe keys, DB config, etc.)
 
-Run Docker components:
+# 2. Configure .env or application.yml (Stripe keys, DB config, etc.)
 
+# 3. Run Docker components
 docker-compose up
-(Optional) Start Ngrok tunnel:
 
+# 4. (Optional) Start Ngrok tunnel
 ngrok http 8080
-Test the API via the provided URL (Postman, etc.)
-
+📌 Architecture diagrams:
 ![Architecture Diagram](images/first-architecture-diagram.png)
 ![Architecture Diagram](images/second-architecture-diagram.png)
 
 ## 🔹 Key Features & Challenges
-Integrated Stripe API with webhook support (first-time experience)
+✅ Integrated Stripe API with webhook support (first-time experience)
 
-Built custom JWT-based authentication
+✅ Built custom JWT-based authentication
 
-Used MapStruct for DTO ↔ Entity mapping
+✅ Used MapStruct for DTO ↔ Entity mapping
 
-Role management (admin/user) and secure profile updates
+✅ Role management (admin/user) and secure profile updates
 
-Telegram bot sends notifications about new bookings to admin (asynchronously using Executor)
+✅ Telegram bot sends notifications about new bookings to admin (asynchronously using Executor)
 
 ## 🔹 Swagger
-Interactive API documentation available at:
+📄 Interactive API documentation:
 http://localhost:8080/api/swagger-ui/index.html
 
 ## 🔹 Author
 Roman Luchko
-Telegram: @servetochka
-GitHub: romander333
-
-This is my full-cycle backend development project built from scratch.
-The goal wasn’t just another CRUD app — but something real, with integrations, security, payments, and real-world application potential.
+📱 Telegram: @servetochka
+💻 GitHub: romander333
