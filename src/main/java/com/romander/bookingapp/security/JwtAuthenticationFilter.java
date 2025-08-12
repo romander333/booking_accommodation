@@ -1,6 +1,6 @@
 package com.romander.bookingapp.security;
 
-import static org.glassfish.grizzly.http.server.Constants.AUTHORIZATION_HEADER;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        String bearerToken = request.getHeader(AUTHORIZATION);
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(BEARER_PREFIX.length());
         }
